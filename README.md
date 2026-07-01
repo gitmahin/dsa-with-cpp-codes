@@ -1,6 +1,6 @@
 # Data Structure Code Examples With Tutorials
 
-Beginner-friendly walkthroughs of C++ data structure implementations - built from scratch using linked lists and arrays.
+Beginner-friendly walkthroughs of C++ data structure implementations.
 
 ## Tutorials
 
