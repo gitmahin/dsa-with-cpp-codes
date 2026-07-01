@@ -208,7 +208,7 @@ int main()
     std::cout << "Front element of the queue: " << queue->frontElement() << std::endl;
     std::cout << "Last element of the queue: " << queue->rearElement() << std::endl;
 
-    delete queue;
+    delete queue; // Free the dynamically allocated memory
 
     return 0;
 }
