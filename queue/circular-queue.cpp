@@ -1,17 +1,29 @@
 #include <iostream>
 
+/* -------------------------------------------------------------------------- */
+/*                              Abstract Data Type                            */
+/* -------------------------------------------------------------------------- */
 /**
  * A Template-based Circular Queue implementation using dynamic arrays.
  * Abstract Data Type (ADT).
  *
+ * This implementation improves upon the Linear Queue by using a "wraparound"
+ * strategy. This eliminates the need for O(n) element shifting during dequeue.
+ *
+ * NOTE: One slot in the array is intentionally left empty to distinguish
+ * between the 'Full' and 'Empty' states.
+ *
  * Time Complexities:
  * - enqueue()       : O(1) - Constant time insertion at the rear.
- * - dequeue()       : O(1) -
- * - frontElement()  : O(1) - Direct access to the first index.
- * - rearElement()   : O(1) - Direct access to the rear index.
- * - peek()          : O(1) - Direct access to a specific index.
- * - traverse()      : O(n) - Linear time to visit every element.
- * - isEmpty/isFull(): O(1) - Simple conditional checks.
+ * - dequeue()       : O(1) - Constant time removal (pointer update only).
+ * - frontElement()  : O(1) - Direct access using front pointer.
+ * - rearElement()   : O(1) - Direct access using rear pointer.
+ * - peek()          : O(1) - Calculated access using modulo.
+ * - traverse()      : O(n) - Linear time to visit every valid element.
+ * - isEmpty/isFull(): O(1) - Simple conditional pointer checks.
+ *
+ * Alternative Strategies
+ * 1. https://medium.com/@e_moreira/circular-queue-a-generic-data-structure-for-efficient-memory-management-c61d8fa88076 [Thanks to the writer]
  */
 template <typename DataType>
 class CircularQueue
@@ -234,7 +246,7 @@ T CircularQueue<T>::dequeue()
      *
      * Result: The pointer "wraps around" from index 4 back to index 0, allowing
      * the queue to reuse the freed space at the start of the array.
-     * 
+     *
      * Note: Same for this->rear also
      */
     this->front = (this->front + 1) % this->size;
@@ -250,7 +262,7 @@ T CircularQueue<T>::frontElement()
         std::cout << "Queue is Empty!" << std::endl;
         return T();
     }
-    return this->data[this->front + 1];
+    return this->data[(this->front + 1) % this->size];
 }
 
 // Get last element from the queue
@@ -263,15 +275,39 @@ T CircularQueue<T>::rearElement()
         return T();
     }
 
-    return this->data[this->rear];
+    return this->data[this->rear % this->size];
 }
 
+/**
+ * Returns the element at a specific logical position (1st, 2nd, etc.)
+ *
+ * Logic:
+ * 1. (this->front + 1) -> Locates the first actual element (since front is a sentinel).
+ * 2. (position - 1)    -> Converts 1-based human position to 0-based offset.
+ * 3. % this->size      -> Wraps the index around to the start of the array if it exceeds the bounds.
+ *
+ * Simplified: (front + position) % size
+ */
 template <typename T>
 T CircularQueue<T>::peek(int position)
 {
     if (this->isEmpty())
     {
         std::cout << "Queue is Empty!" << std::endl;
+        return T();
+    }
+
+    /**
+     * Boundary Check: Validates that the requested logical position exists
+     * within the current range of enqueued elements.
+     *
+     * 1. position <= 0: Handles invalid non-positive indexing (since peek is 1-based).
+     * 2. count < position: Prevents "reading ahead" into empty slots or stale data
+     *    beyond the current number of elements in the queue.
+     */
+    if (this->countValidElement() < position || position <= 0)
+    {
+        std::cout << "Out of Bounds: Position " << position << " does not exist!" << std::endl;
         return T();
     }
 
@@ -307,6 +343,9 @@ void CircularQueue<T>::traverse()
     }
 }
 
+/* -------------------------------------------------------------------------- */
+/*                                Main Execution                              */
+/* -------------------------------------------------------------------------- */
 int main()
 {
 
@@ -343,9 +382,11 @@ int main()
     queue->traverse();
 
     std::cout << "Front element: " << queue->frontElement() << std::endl;
-    std::cout << "Front element: " << queue->rearElement() << std::endl;
+    std::cout << "Last element: " << queue->rearElement() << std::endl;
 
-    std::cout << "Element in position 3: " << queue->peek(11) << std::endl;
+    std::cout << "Element in position 3: " << queue->peek(3) << std::endl;
+
+    delete queue;
 
     return 0;
 }
