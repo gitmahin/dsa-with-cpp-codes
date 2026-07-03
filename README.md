@@ -7,6 +7,7 @@ Beginner-friendly walkthroughs of C++ data structure implementations.
 1. [Infix to Postfix Conversion](./infix-to-postfix/readme.md)
 2. [Queue Using Stack, and Stack Using Queue](./queue-stack/readme.md)
 2. [Linear Queue](./queue/linear-queue.md)
+2. [Circular Queue](./queue/circular-queue.md)
 
 ## How to Use These
 
